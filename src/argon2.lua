@@ -1,9 +1,10 @@
 local ffi = require "ffi"
 local ffi_str = ffi.string
 local ffi_new = ffi.new
-local fmt = string.format
 local find = string.find
-local getinfo = debug.getinfo
+local error = error
+local pairs = pairs
+local type = type
 
 local ENCODED_LEN = 108
 local HASH_LEN = 32
@@ -29,19 +30,12 @@ int argon2_verify(const char *encoded, const void *pwd, const size_t pwdlen,
 const char *error_message(int error_code);
 ]]
 
-local argon2_t = ffi.typeof(ffi_new "argon2_type")
 local buf = ffi_new("char[?]", ENCODED_LEN)
+local argon2_t = ffi.typeof(ffi_new "argon2_type")
+local c_type_i = ffi_new(argon2_t, "Argon2_i")
+local c_type_d = ffi_new(argon2_t, "Argon2_d")
 
 local lib = ffi.load "argon2"
-
-local function check_arg(arg, arg_n, exp_type)
-  if type(arg) ~= exp_type then
-    local info = getinfo(2)
-    local err = fmt("bad argument #%d to '%s' (%s expected, got %s)",
-                    arg_n, info.name, exp_type, type(arg))
-    error(err, 3)
-  end
-end
 
 local _M = {
   _VERSION = "0.0.1",
@@ -51,46 +45,52 @@ local _M = {
 }
 
 function _M.encrypt(pwd, salt, opts)
-  check_arg(pwd, 1, "string")
-  check_arg(salt, 2, "string")
-  if opts ~= nil then
-    check_arg(opts, 3, "table")
-  else
-    opts = {}
+  if type(pwd) ~= "string" then
+    error("bad argument #1 to 'encrypt' (string expected, got "..type(pwd)..")", 2)
+  elseif type(salt) ~= "string" then
+    error("bad argument #2 to 'encrypt' (string expected, got "..type(salt)..")", 2)
   end
 
-  for k, v in pairs(OPTIONS) do
-    if opts[k] == nil then
-      opts[k] = v
-    elseif k ~= "argon2d" and type(opts[k]) ~= "number" then
-      error("expected "..k.." to be a number", 2)
+  if opts == nil then
+    opts = OPTIONS
+  elseif type(opts) ~= "table" then
+    error("bad argument #3 to 'encrypt' (table expected, got "..type(opts)..")", 2)
+  else
+    for k, v in pairs(OPTIONS) do
+      local o = opts[k]
+      if o == nil then
+        opts[k] = v
+      elseif k ~= "argon2d" and type(o) ~= "number" then
+        error("expected "..k.." to be a number", 2)
+      end
     end
   end
 
-  local p = ffi_new("char[?]", #pwd+1, pwd)
-  local s = ffi_new("char[?]", #salt+1, salt)
-  local t = ffi_new(argon2_t, opts.argon2d and "Argon2_d" or "Argon2_i")
+  local c_type = opts.argon2d and c_type_d or c_type_i
 
-  local ret = lib.argon2_hash(opts.t_cost, opts.m_cost, opts.parallelism,
-                              p, #pwd, s, #salt,
-                              nil, HASH_LEN, buf, ENCODED_LEN, t)
-
-  if ret == 0 then
+  local res = lib.argon2_hash(opts.t_cost, opts.m_cost, opts.parallelism,
+                              pwd, #pwd, salt, #salt,
+                              nil, HASH_LEN, buf, ENCODED_LEN, c_type)
+  if res == 0 then
     return ffi_str(buf)
   else
-    local msg = lib.error_message(ret)
-    return nil, ffi_str(msg)
+    local c_msg = lib.error_message(res)
+    return nil, ffi_str(c_msg)
   end
 end
 
 function _M.verify(hash, plain)
-  local h = ffi_new("char[?]", #hash+1, hash)
-  local p = ffi_new("char[?]", #plain+1, plain)
-  local argon2d = find(hash, "argon2d") ~= nil
-  local t = ffi_new(argon2_t, argon2d and "Argon2_d" or "Argon2_i")
+  if type(hash) ~= "string" then
+    error("bad argument #1 to 'verify' (string expected, got "..type(hash)..")", 2)
+  elseif type(plain) ~= "string" then
+    error("bad argument #2 to 'verify' (string expected, got "..type(plain)..")", 2)
+  end
 
-  local ret = lib.argon2_verify(h, p, #plain, t)
-  if ret == 0 then
+  local argon2d = find(hash, "argon2d") ~= nil
+  local c_type = argon2d and c_type_d or c_type_i
+
+  local res = lib.argon2_verify(hash, plain, #plain, c_type)
+  if res == 0 then
     return true
   else
     return false, "The password did not match."
