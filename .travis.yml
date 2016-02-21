@@ -19,8 +19,8 @@ before_install:
 install:
   - luarocks make
 script:
-  - busted -v -o gtest --repeat 3 spec
+  - busted -v --coverage -o gtest --repeat 3 spec
 after_success:
-  - coveralls -b . -r . -i ./src
+  - luacov-coveralls -i ./src/argon2.lua
 cache:
   pip: true
