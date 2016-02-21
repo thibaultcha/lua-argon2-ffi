@@ -1,4 +1,4 @@
-# lua-argon2-ffi [![Module Version][badge-version-image]][luarocks-argon2] [![Build Status][badge-travis-image]][badge-travis-url] [![Coverage Status][badge-coveralls-image]][badge-coveralls-url]
+# lua-argon2-ffi [![Module Version][badge-version-image]][luarocks-argon2-ffi] [![Build Status][badge-travis-image]][badge-travis-url] [![Coverage Status][badge-coveralls-image]][badge-coveralls-url]
 
 FFI binding of [Argon2] for LuaJIT.
 
