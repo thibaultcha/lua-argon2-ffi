@@ -1,4 +1,4 @@
-local argon2 = require "argon2_ffi"
+local argon2 = require "argon2"
 
 describe("argon2_ffi", function()
   it("_VERSION field", function()
