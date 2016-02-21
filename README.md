@@ -2,7 +2,7 @@
 
 FFI binding of [Argon2] for LuaJIT.
 
-While [lua-argon2] provides a pure Lua binding through the Lua C API, this module is intended for use with LuaJIT, especially in [ngx_lua]/[OpenResty] for performance reasons.
+While [lua-argon2] provides a pure Lua binding through the Lua C API, this module is for use with LuaJIT only, especially in [ngx_lua]/[OpenResty] for performance reasons.
 
 ### Prerequisites
 
