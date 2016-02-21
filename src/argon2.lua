@@ -12,7 +12,7 @@ local OPTIONS = {
   t_cost = 2,
   m_cost = 12,
   parallelism = 1,
-  argon2d = false
+  argon2d = false,
 }
 
 ffi.cdef [[
@@ -41,7 +41,7 @@ local _M = {
   _VERSION = "0.0.1",
   _AUTHOR = "Thibault Charbonnier",
   _LICENSE = "MIT",
-  _URL = "https://github.com/thibaultCha/lua-argon2-ffi"
+  _URL = "https://github.com/thibaultCha/lua-argon2-ffi",
 }
 
 function _M.encrypt(pwd, salt, opts)
