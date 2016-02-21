@@ -43,7 +43,12 @@ local function check_arg(arg, arg_n, exp_type)
   end
 end
 
-local _M = {}
+local _M = {
+  _VERSION = "0.0.1",
+  _AUTHOR = "Thibault Charbonnier",
+  _LICENSE = "MIT",
+  _URL = "https://github.com/thibaultCha/lua-argon2-ffi"
+}
 
 function _M.encrypt(pwd, salt, opts)
   check_arg(pwd, 1, "string")

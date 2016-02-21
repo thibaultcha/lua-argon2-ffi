@@ -1,7 +1,18 @@
 local argon2 = require "argon2_ffi"
 
 describe("argon2_ffi", function()
-
+  it("_VERSION field", function()
+    assert.equal("0.0.1", argon2._VERSION)
+  end)
+  it("_AUTHOR field", function()
+    assert.equal("Thibault Charbonnier", argon2._AUTHOR)
+  end)
+  it("_LICENSE field", function()
+    assert.equal("MIT", argon2._LICENSE)
+  end)
+  it("_URL field", function()
+    assert.equal("https://github.com/thibaultCha/lua-argon2-ffi", argon2._URL)
+  end)
 end)
 
 describe("encrypt()", function()
