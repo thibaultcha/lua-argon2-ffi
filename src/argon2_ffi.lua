@@ -2,6 +2,7 @@ local ffi = require "ffi"
 local ffi_str = ffi.string
 local ffi_new = ffi.new
 local fmt = string.format
+local find = string.find
 local getinfo = debug.getinfo
 
 local ENCODED_LEN = 108
@@ -21,6 +22,9 @@ int argon2_hash(const uint32_t t_cost, const uint32_t m_cost,
                 const size_t pwdlen, const void *salt, const size_t saltlen,
                 void *hash, const size_t hashlen, char *encoded,
                 const size_t encodedlen, argon2_type type);
+
+int argon2_verify(const char *encoded, const void *pwd, const size_t pwdlen,
+                  argon2_type type);
 
 const char *error_message(int error_code);
 ]]
@@ -73,4 +77,19 @@ function _M.encrypt(pwd, salt, opts)
     return nil, ffi_str(msg)
   end
 end
+
+function _M.verify(hash, plain)
+  local h = ffi_new("char[?]", #hash+1, hash)
+  local p = ffi_new("char[?]", #plain+1, plain)
+  local argon2d = find(hash, "argon2d") ~= nil
+  local t = ffi_new(argon2_t, argon2d and "Argon2_d" or "Argon2_i")
+
+  local ret = lib.argon2_verify(h, p, #plain, t)
+  if ret == 0 then
+    return true
+  else
+    return false, "The password did not match."
+  end
+end
+
 return _M
