@@ -14,12 +14,13 @@ before_install:
   - hererocks lua_install -r^ --$LUA
   - export PATH=$PATH:$PWD/lua_install/bin
   - luarocks install busted
+  - luarocks install luacheck
   - luarocks install luacov-coveralls
   - export LD_LIBRARY_PATH="$HOME/argon2"
 install:
   - luarocks make
 script:
-  - busted -v --coverage -o gtest --repeat 3 spec
+  -  make lint && busted -v --coverage -o gtest --repeat 3 spec
 after_success:
   - luacov-coveralls -i ./src/argon2.lua
 cache:
