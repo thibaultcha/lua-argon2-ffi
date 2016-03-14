@@ -2,15 +2,18 @@
 
 FFI binding of [Argon2] for LuaJIT.
 
-While [lua-argon2] provides a pure Lua binding through the Lua C API, this module is for use with LuaJIT only, especially in [ngx_lua]/[OpenResty] for performance reasons.
+While [lua-argon2] provides a pure Lua binding through the Lua C API, this module is for use with LuaJIT only, especially in [ngx_lua]/[OpenResty], though the performance gains are very limited due to the nature of Argon2.
 
 ### Prerequisites
 
 The [Argon2] shared library must be compiled and available in your system.
 
+Compatibility:
+- Version `0.x` of this module is compatible with Argon2 [`20151206`](https://github.com/P-H-C/phc-winner-argon2/releases/tag/20151206)
+
 ### Install
 
-This binding can be installed with [Luarocks](https://luarocks.org):
+This binding can be installed via [Luarocks](https://luarocks.org):
 
 ```
 $ luarocks install argon2-ffi
@@ -66,7 +69,7 @@ assert(ok == false)
 
 ### Documentation
 
-Since the API is the same as lua-argon2, the documentation is available at <http://thibaultcha.github.io/lua-argon2>.
+Since the API is the same as [lua-argon2]'s, the documentation is available at <http://thibaultcha.github.io/lua-argon2>.
 
 ### License
 
