@@ -30,7 +30,7 @@ Or simply by copying the `src/argon2.lua` file in your `LUA_PATH`.
 ### Usage
 
 **Note**: lua-argon2-ffi uses the same API as [lua-argon2], to the exception of
-default settings capabilities of lua-argon2.
+the default settings capabilities of lua-argon2.
 
 Encrypt:
 
