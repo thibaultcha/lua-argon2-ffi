@@ -16,6 +16,8 @@ The [Argon2] shared library must be compiled and available in your system.
 Compatibility:
 - Version `0.x` of this module is compatible with Argon2
   [`20151206`](https://github.com/P-H-C/phc-winner-argon2/releases/tag/20151206)
+- Version `1.x` of this module is compatible with Argon2
+  [`20160406`](https://github.com/P-H-C/phc-winner-argon2/releases/tag/20160406)
 
 ### Install
 
@@ -90,6 +92,6 @@ implementation.
 
 [badge-travis-url]: https://travis-ci.org/thibaultCha/lua-argon2-ffi
 [badge-travis-image]: https://travis-ci.org/thibaultCha/lua-argon2-ffi.svg?branch=master
-[badge-version-image]: https://img.shields.io/badge/version-0.0.1-blue.svg?style=flat
+[badge-version-image]: https://img.shields.io/badge/version-1.0.0-blue.svg?style=flat
 [badge-coveralls-url]: https://coveralls.io/github/thibaultCha/lua-argon2-ffi?branch=master
 [badge-coveralls-image]: https://coveralls.io/repos/github/thibaultCha/lua-argon2-ffi/badge.svg?branch=master

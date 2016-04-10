@@ -18,16 +18,26 @@ local OPTIONS = {
 ffi.cdef [[
 typedef enum Argon2_type { Argon2_d = 0, Argon2_i = 1 } argon2_type;
 
-int argon2_hash(const uint32_t t_cost, const uint32_t m_cost,
-                const uint32_t parallelism, const void *pwd,
-                const size_t pwdlen, const void *salt, const size_t saltlen,
-                void *hash, const size_t hashlen, char *encoded,
-                const size_t encodedlen, argon2_type type);
+int argon2i_hash_encoded(const uint32_t t_cost,
+                         const uint32_t m_cost,
+                         const uint32_t parallelism,
+                         const void *pwd, const size_t pwdlen,
+                         const void *salt, const size_t saltlen,
+                         const size_t hashlen, char *encoded,
+                         const size_t encodedlen);
+
+int argon2d_hash_encoded(const uint32_t t_cost,
+                         const uint32_t m_cost,
+                         const uint32_t parallelism,
+                         const void *pwd, const size_t pwdlen,
+                         const void *salt, const size_t saltlen,
+                         const size_t hashlen, char *encoded,
+                         const size_t encodedlen);
 
 int argon2_verify(const char *encoded, const void *pwd, const size_t pwdlen,
                   argon2_type type);
 
-const char *error_message(int error_code);
+const char *argon2_error_message(int error_code);
 ]]
 
 local buf = ffi_new("char[?]", ENCODED_LEN)
@@ -38,7 +48,7 @@ local c_type_d = ffi_new(argon2_t, "Argon2_d")
 local lib = ffi.load "argon2"
 
 local _M = {
-  _VERSION = "0.0.1",
+  _VERSION = "1.0.0",
   _AUTHOR = "Thibault Charbonnier",
   _LICENSE = "MIT",
   _URL = "https://github.com/thibaultCha/lua-argon2-ffi",
@@ -66,15 +76,19 @@ function _M.encrypt(pwd, salt, opts)
     end
   end
 
-  local c_type = opts.argon2d and c_type_d or c_type_i
+  local res
+  if opts.argon2d then
+    res = lib.argon2d_hash_encoded(opts.t_cost, opts.m_cost, opts.parallelism,
+                                   pwd, #pwd, salt, #salt, HASH_LEN, buf, ENCODED_LEN)
+  else
+    res = lib.argon2i_hash_encoded(opts.t_cost, opts.m_cost, opts.parallelism,
+                                   pwd, #pwd, salt, #salt, HASH_LEN, buf, ENCODED_LEN)
+  end
 
-  local res = lib.argon2_hash(opts.t_cost, opts.m_cost, opts.parallelism,
-                              pwd, #pwd, salt, #salt,
-                              nil, HASH_LEN, buf, ENCODED_LEN, c_type)
   if res == 0 then
     return ffi_str(buf)
   else
-    local c_msg = lib.error_message(res)
+    local c_msg = lib.argon2_error_message(res)
     return nil, ffi_str(c_msg)
   end
 end

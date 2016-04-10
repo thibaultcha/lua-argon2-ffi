@@ -1,8 +1,8 @@
 package = "argon2-ffi"
-version = "0.0.1-0"
+version = "1.0.0-0"
 source = {
   url = "git://github.com/thibaultCha/lua-argon2-ffi",
-  tag = "0.0.1"
+  tag = "1.0.0"
 }
 description = {
   summary = "LuaJIT FFI binding for the Argon2 password hashing algorithm",
