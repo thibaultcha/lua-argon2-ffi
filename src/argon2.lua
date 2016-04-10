@@ -48,7 +48,7 @@ local c_type_d = ffi_new(argon2_t, "Argon2_d")
 local lib = ffi.load "argon2"
 
 local _M = {
-  _VERSION = "0.0.1",
+  _VERSION = "1.0.0",
   _AUTHOR = "Thibault Charbonnier",
   _LICENSE = "MIT",
   _URL = "https://github.com/thibaultCha/lua-argon2-ffi",
