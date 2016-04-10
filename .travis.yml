@@ -3,7 +3,7 @@ notifications:
   email: false
 env:
   global:
-    - ARGON2_VERSION=20151206
+    - ARGON2_VERSION=20160406
     - ARGON2_DIR=$HOME/argon2
   matrix:
     - LUA="luajit 2.0"
