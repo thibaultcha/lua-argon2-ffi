@@ -1,13 +1,20 @@
 sudo: false
+
 notifications:
   email: false
+
 env:
   global:
-    - ARGON2_VERSION=20160406
+    - ARGON2_VERSION=20161029
     - ARGON2_DIR=$HOME/argon2
   matrix:
     - LUA="luajit 2.0"
     - LUA="luajit 2.1"
+    - LUA="luajit 2.1"
+      ARGON2_VERSION=20160406
+    - LUA="luajit 2.1"
+      ARGON2_VERSION=20160821
+
 before_install:
   - bash .ci/setup_argon2.sh
   - pip install --user hererocks
@@ -17,11 +24,15 @@ before_install:
   - luarocks install luacheck
   - luarocks install luacov-coveralls
   - export LD_LIBRARY_PATH="$HOME/argon2"
+
 install:
   - luarocks make
+
 script:
   -  make lint && busted -v --coverage -o gtest --repeat 3 spec
+
 after_success:
   - luacov-coveralls -i ./src/argon2.lua
+
 cache:
   pip: true
