@@ -5,9 +5,9 @@
 
 FFI binding of [Argon2] for LuaJIT.
 
-While [lua-argon2] provides a pure Lua binding through the Lua C API, this
-module is for use with LuaJIT only, especially in [ngx_lua]/[OpenResty], though
-the performance gains are very limited due to the nature of Argon2.
+While [lua-argon2] provides a PUC Lua binding through the Lua C API, this
+module is a binding for the LuaJIT FFI, especially fit for use in
+[ngx_lua]/[OpenResty].
 
 ### Prerequisites
 
@@ -47,11 +47,11 @@ local argon2 = require "argon2"
 
 --- Argon2i
 local hash = assert(argon2.encrypt("password", "somesalt"))
--- hash: "$argon2i$m=12,t=2,p=1$c29tZXNhbHQ$ltrjNRFqTXmsHj++TFGZxg+zSg8hSrrSJiViCRns1HM"
+-- hash is "$argon2i$m=12,t=2,p=1$c29tZXNhbHQ$ltrjNRFqTXmsHj++TFGZxg+zSg8hSrrSJiViCRns1HM"
 
 --- Argon2d
 local hash = assert(argon2.encrypt("password", "somesalt", {argon2d = true}))
--- hash: "$argon2d$m=12,t=2,p=1$c29tZXNhbHQ$mfklun4fYCbv2Hw0UnZZ56xAqWbjD+XRMSN9h6SfLe4"
+-- hash is "$argon2d$m=12,t=2,p=1$c29tZXNhbHQ$mfklun4fYCbv2Hw0UnZZ56xAqWbjD+XRMSN9h6SfLe4"
 
 -- Hashing options
 local hash = assert(argon2.encrypt("password", "somesalt", {
@@ -59,7 +59,7 @@ local hash = assert(argon2.encrypt("password", "somesalt", {
   m_cost = 24,
   parallelism = 2
 }))
--- hash: "$argon2i$m=24,t=4,p=2$c29tZXNhbHQ$8BtAMKSLKR3l66c3l40LKrg09NwLD7hJYfSqoLQyKEE"
+-- hash is "$argon2i$m=24,t=4,p=2$c29tZXNhbHQ$8BtAMKSLKR3l66c3l40LKrg09NwLD7hJYfSqoLQyKEE"
 ```
 
 Verify:
@@ -70,7 +70,7 @@ local argon2 = require "argon2"
 -- local ok, err = argon2.decrypt(hash, plain)
 
 local hash = assert(argon2.encrypt("password", "somesalt"))
--- hash: argon2i hash
+-- hash is an argon2i hash
 
 assert(argon2.verify(hash, "password")) -- ok: true
 assert(argon2.verify(hash, "passworld")) -- error: The password did not match
@@ -78,8 +78,8 @@ assert(argon2.verify(hash, "passworld")) -- error: The password did not match
 
 ### Documentation
 
-Since the API is the same as [lua-argon2]'s, the documentation is available at
-<http://thibaultcha.github.io/lua-argon2>.
+This module's API being the same as [lua-argon2]'s, the detailed documentation
+is available at <http://thibaultcha.github.io/lua-argon2>.
 
 ### License
 
