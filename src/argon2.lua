@@ -61,7 +61,7 @@ local _M     = {
     _URL     = "https://github.com/thibaultCha/lua-argon2-ffi",
 }
 
-function encoded_len(salt_len, hash_len)
+local encoded_len = function(salt_len, hash_len)
     return 40 + (math.ceil(salt_len / 3) + math.ceil(hash_len / 3)) * 4
 end
 
