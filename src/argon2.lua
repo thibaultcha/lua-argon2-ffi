@@ -37,7 +37,6 @@ ffi.cdef [[
 ]]
 
 
-local ENCODED_LEN = 108
 local HASH_LEN    = 32
 local OPTIONS     = {
     t_cost        = 2,
@@ -47,7 +46,6 @@ local OPTIONS     = {
 }
 
 
-local buf = ffi.new("char[?]", ENCODED_LEN)
 local argon2_t = ffi.typeof(ffi.new "argon2_type")
 local c_type_i = ffi.new(argon2_t, "Argon2_i")
 local c_type_d = ffi.new(argon2_t, "Argon2_d")
@@ -63,6 +61,9 @@ local _M     = {
     _URL     = "https://github.com/thibaultCha/lua-argon2-ffi",
 }
 
+function encoded_len(salt_len, hash_len)
+    return 40 + (math.ceil(salt_len / 3) + math.ceil(hash_len / 3)) * 4
+end
 
 function _M.encrypt(pwd, salt, opts)
     if type(pwd) ~= "string" then
@@ -91,13 +92,15 @@ function _M.encrypt(pwd, salt, opts)
         end
     end
 
+    local buf_len = encoded_len(#salt, HASH_LEN)
+    local buf = ffi.new("char[?]", buf_len)
     local res
     if opts.argon2d then
         res = lib.argon2d_hash_encoded(opts.t_cost, opts.m_cost, opts.parallelism,
-        pwd, #pwd, salt, #salt, HASH_LEN, buf, ENCODED_LEN)
+        pwd, #pwd, salt, #salt, HASH_LEN, buf, buf_len)
     else
         res = lib.argon2i_hash_encoded(opts.t_cost, opts.m_cost, opts.parallelism,
-        pwd, #pwd, salt, #salt, HASH_LEN, buf, ENCODED_LEN)
+        pwd, #pwd, salt, #salt, HASH_LEN, buf, buf_len)
     end
 
     if res ~= 0 then
