@@ -34,6 +34,10 @@ ffi.cdef [[
                     argon2_type type);
 
     const char *argon2_error_message(int error_code);
+
+    size_t argon2_encodedlen(uint32_t t_cost, uint32_t m_cost,
+                            uint32_t parallelism, uint32_t saltlen,
+                            uint32_t hashlen, argon2_type type);
 ]]
 
 
@@ -60,10 +64,6 @@ local _M     = {
     _LICENSE = "MIT",
     _URL     = "https://github.com/thibaultCha/lua-argon2-ffi",
 }
-
-local encoded_len = function(salt_len, hash_len)
-    return 40 + (math.ceil(salt_len / 3) + math.ceil(hash_len / 3)) * 4
-end
 
 function _M.encrypt(pwd, salt, opts)
     if type(pwd) ~= "string" then
@@ -92,7 +92,9 @@ function _M.encrypt(pwd, salt, opts)
         end
     end
 
-    local buf_len = encoded_len(#salt, HASH_LEN)
+    local c_type = opts.argon2d and c_type_d or c_type_i
+    local buf_len = lib.argon2_encodedlen(opts.t_cost, opts.m_cost, opts.parallelism,
+          #salt, HASH_LEN, c_type)
     local buf = ffi.new("char[?]", buf_len)
     local res
     if opts.argon2d then
