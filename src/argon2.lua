@@ -41,11 +41,11 @@ ffi.cdef [[
 ]]
 
 
-local HASH_LEN    = 32
 local OPTIONS     = {
     t_cost        = 2,
     m_cost        = 12,
     parallelism   = 1,
+    hash_len      = 32,
     argon2d       = false,
 }
 
@@ -94,15 +94,15 @@ function _M.encrypt(pwd, salt, opts)
 
     local c_type = opts.argon2d and c_type_d or c_type_i
     local buf_len = lib.argon2_encodedlen(opts.t_cost, opts.m_cost, opts.parallelism,
-          #salt, HASH_LEN, c_type)
+          #salt, opts.hash_len, c_type)
     local buf = ffi.new("char[?]", buf_len)
     local res
     if opts.argon2d then
         res = lib.argon2d_hash_encoded(opts.t_cost, opts.m_cost, opts.parallelism,
-        pwd, #pwd, salt, #salt, HASH_LEN, buf, buf_len)
+        pwd, #pwd, salt, #salt, opts.hash_len, buf, buf_len)
     else
         res = lib.argon2i_hash_encoded(opts.t_cost, opts.m_cost, opts.parallelism,
-        pwd, #pwd, salt, #salt, HASH_LEN, buf, buf_len)
+        pwd, #pwd, salt, #salt, opts.hash_len, buf, buf_len)
     end
 
     if res ~= 0 then

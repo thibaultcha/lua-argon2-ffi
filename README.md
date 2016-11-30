@@ -57,9 +57,10 @@ local hash = assert(argon2.encrypt("password", "somesalt", {argon2d = true}))
 local hash = assert(argon2.encrypt("password", "somesalt", {
   t_cost = 4,
   m_cost = 24,
-  parallelism = 2
+  parallelism = 2,
+  hash_len = 64
 }))
--- hash is "$argon2i$m=24,t=4,p=2$c29tZXNhbHQ$8BtAMKSLKR3l66c3l40LKrg09NwLD7hJYfSqoLQyKEE"
+-- hash is "$argon2i$v=19$m=24,t=4,p=2$c29tZXNhbHQ$NV3zeCzIhUhosd7jtTuifTEoPOb/aPAtO0oTYdZkWfNBXCglBgxVEiJy+tLG4j011vZRO3pnmG82Vc/C1B6Tzw"
 ```
 
 Verify:
