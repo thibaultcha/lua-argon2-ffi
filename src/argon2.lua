@@ -34,20 +34,22 @@ ffi.cdef [[
                     argon2_type type);
 
     const char *argon2_error_message(int error_code);
+
+    size_t argon2_encodedlen(uint32_t t_cost, uint32_t m_cost,
+                            uint32_t parallelism, uint32_t saltlen,
+                            uint32_t hashlen, argon2_type type);
 ]]
 
 
-local ENCODED_LEN = 108
-local HASH_LEN    = 32
 local OPTIONS     = {
     t_cost        = 2,
     m_cost        = 12,
     parallelism   = 1,
+    hash_len      = 32,
     argon2d       = false,
 }
 
 
-local buf = ffi.new("char[?]", ENCODED_LEN)
 local argon2_t = ffi.typeof(ffi.new "argon2_type")
 local c_type_i = ffi.new(argon2_t, "Argon2_i")
 local c_type_d = ffi.new(argon2_t, "Argon2_d")
@@ -62,7 +64,6 @@ local _M     = {
     _LICENSE = "MIT",
     _URL     = "https://github.com/thibaultCha/lua-argon2-ffi",
 }
-
 
 function _M.encrypt(pwd, salt, opts)
     if type(pwd) ~= "string" then
@@ -91,13 +92,17 @@ function _M.encrypt(pwd, salt, opts)
         end
     end
 
+    local c_type = opts.argon2d and c_type_d or c_type_i
+    local buf_len = lib.argon2_encodedlen(opts.t_cost, opts.m_cost, opts.parallelism,
+          #salt, opts.hash_len, c_type)
+    local buf = ffi.new("char[?]", buf_len)
     local res
     if opts.argon2d then
         res = lib.argon2d_hash_encoded(opts.t_cost, opts.m_cost, opts.parallelism,
-        pwd, #pwd, salt, #salt, HASH_LEN, buf, ENCODED_LEN)
+        pwd, #pwd, salt, #salt, opts.hash_len, buf, buf_len)
     else
         res = lib.argon2i_hash_encoded(opts.t_cost, opts.m_cost, opts.parallelism,
-        pwd, #pwd, salt, #salt, HASH_LEN, buf, ENCODED_LEN)
+        pwd, #pwd, salt, #salt, opts.hash_len, buf, buf_len)
     end
 
     if res ~= 0 then
