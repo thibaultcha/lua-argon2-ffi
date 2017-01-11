@@ -45,6 +45,12 @@ This binding can be installed via [Luarocks](https://luarocks.org):
 $ luarocks install argon2-ffi
 ```
 
+Or via [opm](https://github.com/openresty/opm):
+
+```
+$ opm get thibaultcha/lua-argon2-ffi
+```
+
 Or simply by copying the `src/argon2.lua` file in your `LUA_PATH`.
 
 [Back to TOC](#table-of-contents)
