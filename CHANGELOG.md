@@ -55,7 +55,8 @@ for similar versions.
 Initial release of this module for Argon2
 [20151206](https://github.com/P-H-C/phc-winner-argon2/releases/tag/20151206).
 
-[unreleased]: https://github.com/thibaultcha/lua-argon2-ffi/compare/3.0.0...master
+[unreleased]: https://github.com/thibaultcha/lua-argon2-ffi/compare/3.0.1...master
+[3.0.1]: https://github.com/thibaultcha/lua-argon2-ffi/compare/3.0.0...3.0.1
 [3.0.0]: https://github.com/thibaultcha/lua-argon2-ffi/compare/1.0.0...3.0.0
 [1.0.0]: https://github.com/thibaultcha/lua-argon2-ffi/compare/0.0.1...1.0.0
 [0.0.1]: https://github.com/thibaultcha/lua-argon2-ffi/compare/a2f94a08ec34bdd570ff707f5e2bebf87a60ba62...0.0.1

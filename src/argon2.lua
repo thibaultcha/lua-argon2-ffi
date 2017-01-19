@@ -76,7 +76,7 @@ end
 
 
 local _M     = {
-    _VERSION = "3.0.0",
+    _VERSION = "3.0.1",
     _AUTHOR  = "Thibault Charbonnier",
     _LICENSE = "MIT",
     _URL     = "https://github.com/thibaultcha/lua-argon2-ffi",
