@@ -1,4 +1,4 @@
--- vim:set st=4 sw=4 et:
+-- vim:set st=4 sw=4 sts=4 et:
 local ffi = require "ffi"
 
 
@@ -6,8 +6,10 @@ local ffi_new = ffi.new
 local ffi_str = ffi.string
 local find    = string.find
 local error   = error
-local pairs   = pairs
 local type    = type
+
+
+local empty_t = {}
 
 
 ffi.cdef [[
@@ -73,15 +75,6 @@ do
 end
 
 
-local OPTIONS   = {
-    t_cost      = 3,
-    m_cost      = 4096,
-    parallelism = 1,
-    hash_len    = 32,
-    variant     = argon2_i,
-}
-
-
 local _M     = {
     _VERSION = "3.0.0",
     _AUTHOR  = "Thibault Charbonnier",
@@ -106,57 +99,73 @@ function _M.hash_encoded(pwd, salt, opts)
                      .. type(salt) .. ")", 2)
     end
 
-    if opts and type(opts) ~= "table" then
+    if not opts then
+        opts = empty_t
+    end
+
+    if type(opts) ~= "table" then
         return error("bad argument #3 to 'hash_encoded' (expected to be a "
                      .. "table)", 2)
     end
 
-    if opts == nil then
-        opts = OPTIONS
 
-    else
-        for k, v in pairs(OPTIONS) do
-            local o = opts[k]
+    local t_cost      = opts.t_cost or 3
+    local m_cost      = opts.m_cost or 4096
+    local parallelism = opts.parallelism or 1
+    local hash_len    = opts.hash_len or 32
+    local variant     = opts.variant or argon2_i
 
-            if o == nil then
-                opts[k] = v
-
-            elseif k == "variant" then
-                if type(o) ~= "cdata" then
-                    return error("bad argument #3 to 'hash_encoded' (expected "
-                                 .. k .. " to be an argon2_type, got "
-                                 .. type(o) .. ")", 2)
-                end
-
-            elseif type(o) ~= "number" then
-                return error("bad argument #3 to 'hash_encoded' (expected "
-                             .. k .. " to be a number, got "
-                             .. type(o) .. ")", 2)
-            end
-        end
+    if type(variant) ~= "cdata" then
+        return error("bad argument #3 to 'hash_encoded' (expected " ..
+                     "variant to be an argon2_type, got "           ..
+                     type(opts.variant) .. ")", 2)
     end
 
-    local buf_len = lib.argon2_encodedlen(opts.t_cost, opts.m_cost,
-                                          opts.parallelism, #salt,
-                                          opts.hash_len, opts.variant)
+    if type(t_cost) ~= "number" then
+        return error("bad argument #3 to 'hash_encoded' (expected " ..
+                     "t_cost to be a number, got "                  ..
+                     type(t_cost) .. ")", 2)
+    end
+
+    if type(m_cost) ~= "number" then
+        return error("bad argument #3 to 'hash_encoded' (expected " ..
+                     "m_cost to be a number, got "                  ..
+                     type(m_cost) .. ")", 2)
+    end
+
+    if type(parallelism) ~= "number" then
+        return error("bad argument #3 to 'hash_encoded' (expected " ..
+                     "parallelism to be a number, got "             ..
+                     type(parallelism) .. ")", 2)
+    end
+
+    if type(hash_len) ~= "number" then
+        return error("bad argument #3 to 'hash_encoded' (expected " ..
+                     "hash_len to be a number, got "                ..
+                     type(hash_len) .. ")", 2)
+    end
+
+    local buf_len = lib.argon2_encodedlen(t_cost, m_cost,
+                                          parallelism, #salt,
+                                          hash_len, variant)
 
     local buf = ffi_new("char[?]", buf_len)
     local ret_code
 
     if opts.variant == argon2_d then
-        ret_code = lib.argon2d_hash_encoded(opts.t_cost, opts.m_cost,
-                                            opts.parallelism, pwd, #pwd, salt,
-                                            #salt, opts.hash_len, buf, buf_len)
+        ret_code = lib.argon2d_hash_encoded(t_cost, m_cost,
+                                            parallelism, pwd, #pwd, salt,
+                                            #salt, hash_len, buf, buf_len)
 
     elseif opts.variant == argon2_id then
-        ret_code = lib.argon2id_hash_encoded(opts.t_cost, opts.m_cost,
-                                             opts.parallelism, pwd, #pwd, salt,
-                                             #salt, opts.hash_len, buf, buf_len)
+        ret_code = lib.argon2id_hash_encoded(t_cost, m_cost,
+                                             parallelism, pwd, #pwd, salt,
+                                             #salt, hash_len, buf, buf_len)
 
     else
-        ret_code = lib.argon2i_hash_encoded(opts.t_cost, opts.m_cost,
-                                            opts.parallelism, pwd, #pwd, salt,
-                                            #salt, opts.hash_len, buf, buf_len)
+        ret_code = lib.argon2i_hash_encoded(t_cost, m_cost,
+                                            parallelism, pwd, #pwd, salt,
+                                            #salt, hash_len, buf, buf_len)
     end
 
     if ret_code ~= ARGON2_OK then

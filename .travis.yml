@@ -25,7 +25,9 @@ install:
   - luarocks make
 
 script:
-  -  make lint && busted -v --coverage -o gtest --repeat 3 spec
+  - make lint
+  - busted --exclude-tags=JIT -v --coverage -o gtest --repeat 3 spec
+  - if [ "$LUA" = "luajit 2.1" ]; then busted -v -o gtest --tags JIT; fi
 
 after_success:
   - luacov-coveralls -i ./src/argon2.lua
