@@ -1,10 +1,17 @@
 ## [Unreleased][unrelease]
 
+## [3.0.1] - 2017/01/18
+
+### Added
+
+- Ensure `hash_encoded()` and `verify()` are JIT compiled in LuaJIT 2.1.
+  [#11](https://github.com/thibaultcha/lua-argon2-ffi/pull/11)
+
 ## [3.0.0] - 2016/12/08
 
 **Note**: This module's version was bumped to `3.0.0` to reflect the
 interoperability of its API with the lua-argon2 implementation. In the future,
-lua-argon2 and lua-argon2-ffi will continue sharing the same version number
+lua-argon2 and lua-argon2-ffi will continue sharing the same major version number
 for similar versions.
 
 ### Changed
