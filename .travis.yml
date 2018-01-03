@@ -3,34 +3,62 @@ sudo: false
 notifications:
   email: false
 
+cache:
+  pip: true
+  directories:
+    - download-cache
+
 env:
   global:
-    - ARGON2_VERSION=20161029
+    - ARGON2_VERSION=20171227
     - ARGON2_DIR=$HOME/argon2
-  matrix:
     - LUA="luajit 2.0"
+  matrix:
+    - LINT=1
     - LUA="luajit 2.1"
+    - LUA="luajit 2.1" ARGON2_VERSION="20161029"
+    - LUA="luajit 2.1" ARGON2_VERSION="HEAD"
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - env: LUA="luajit 2.1" ARGON2_VERSION="HEAD"
 
 before_install:
-  - bash .ci/setup_argon2.sh
-  - pip install --user hererocks
-  - hererocks lua_install -r^ --$LUA
+  - mkdir -p download-cache
+  - pushd download-cache
+  - if [ ! -d phc-winner-argon2 ]; then git clone https://github.com/P-H-C/phc-winner-argon2.git; fi
+  - pushd phc-winner-argon2
+  - git checkout master
+  - git pull
+  - if [ "$ARGON2_VERSION" != "HEAD" ]; then git checkout $ARGON2_VERSION; fi
+  - make > build.log 2>&1 || (cat build.log && exit 1)
+  - make test > build.log 2>&1 || (cat build.log && exit 1)
+  - make install PREFIX="$ARGON2_DIR" > build.log 2>&1 || (cat build.log && exit 1)
+  - if [ "$ARGON2_VERSION" == "20161029" ]; then ln -s $ARGON2_DIR/lib/libargon2.so $ARGON2_DIR/lib/libargon2.so.0; fi
+  - popd
+  - popd
+  - pip install --user hererocks cpp-coveralls > build.log 2>&1 || (cat build.log && exit 1)
+  - hererocks lua_install -r^ --$LUA > build.log 2>&1 || (cat build.log && exit 1)
   - export PATH=$PATH:$PWD/lua_install/bin
-  - luarocks install busted
-  - luarocks install luacheck
-  - luarocks install luacov-coveralls
-  - export LD_LIBRARY_PATH="$HOME/argon2"
+  - luarocks install busted > build.log 2>&1 || (cat build.log && exit 1)
+  - luarocks install luacheck > build.log 2>&1 || (cat build.log && exit 1)
+  - luarocks install luacov-coveralls > build.log 2>&1 || (cat build.log && exit 1)
+  - export LD_LIBRARY_PATH="$ARGON2_DIR/lib"
 
 install:
   - luarocks make
 
 script:
-  - make lint
-  - busted --exclude-tags=JIT -v --coverage -o gtest --repeat 3 spec
-  - if [ "$LUA" = "luajit 2.1" ]; then busted -v -o gtest --tags JIT; fi
+  - >
+    if [ -n "$LINT" ]; then
+      make lint
+    else
+      busted --exclude-tags=JIT -v --coverage -o gtest --repeat 3
+      if [ "$LUA" = "luajit 2.1" ]; then
+        busted -v -o gtest --tags JIT
+      fi
+    fi
 
 after_success:
-  - luacov-coveralls -i ./src/argon2.lua
-
-cache:
-  pip: true
+  - if [ -z "$LINT" ]; then luacov-coveralls -i ./src/argon2.lua fi
